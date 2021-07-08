@@ -11,6 +11,11 @@ class Author
     private $lastName;
     private $email;
     private $birthdate;
+    private $urlImage;
+
+    /**
+     * @return mixed
+     */
 
     /**
      * Author constructor.
@@ -107,6 +112,18 @@ class Author
         $this->birthdate = $birthdate;
     }
 
+    public function getUrlImage()
+    {
+        return $this->urlImage;
+    }
+
+    /**
+     * @param mixed $urlImage
+     */
+    public function setUrlImage($urlImage): void
+    {
+        $this->urlImage = $urlImage;
+    }
 
 
 }

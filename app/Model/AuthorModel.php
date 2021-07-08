@@ -6,6 +6,7 @@ namespace App\Model;
 class AuthorModel //CRUD with Database
 {
     private $dbConnect;
+
     public function __construct()
     {
         $this->dbConnect = new DBConnect();
@@ -19,7 +20,7 @@ class AuthorModel //CRUD with Database
             $stmt = $this->dbConnect->connect()->query($sql);
             $stmt->execute();
             return $this->convertAllToObj($stmt->fetchAll());
-        }catch (\PDOException $exception){
+        } catch (\PDOException $exception) {
             die($exception->getMessage());
         }
 
@@ -33,7 +34,7 @@ class AuthorModel //CRUD with Database
             $stmt = $this->dbConnect->connect()->query($sql);
             $stmt->execute();
             return $this->convertToObject($stmt->fetch());
-        }catch (\PDOException $exception){
+        } catch (\PDOException $exception) {
             die($exception->getMessage());
         }
 
@@ -42,15 +43,19 @@ class AuthorModel //CRUD with Database
     //Tạo Author
     public function create($request)
     {
+//        var_dump($_FILES['fileToUpload']['name']);
+//        die();
+        $url = 'uploads/'.$_FILES['fileToUpload']['name'];
         try {
-            $sql = "INSERT INTO `authors`(`first_name`,`last_name`,`email`,`birthdate`) VALUES (?,?,?,?)";
+            $sql = "INSERT INTO `authors`(`first_name`,`last_name`,`email`,`birthdate`,`url_image`) VALUES (?,?,?,?,?)";
             $stmt = $this->dbConnect->connect()->prepare($sql);
-            $stmt->bindParam(1,$request['first-name']);
-            $stmt->bindParam(2,$request['last-name']);
-            $stmt->bindParam(3,$request['email']);
-            $stmt->bindParam(4,$request['birthdate']);
+            $stmt->bindParam(1, $request['first-name']);
+            $stmt->bindParam(2, $request['last-name']);
+            $stmt->bindParam(3, $request['email']);
+            $stmt->bindParam(4, $request['birthdate']);
+            $stmt->bindParam(5, $url);
             $stmt->execute();
-        }catch (\PDOException $exception){
+        } catch (\PDOException $exception) {
             echo $exception->getMessage();
         }
 
@@ -59,15 +64,25 @@ class AuthorModel //CRUD with Database
     //Cập nhật thông tin Author
     public function update($request)
     {
+        $author = $this->getById($_REQUEST['id']);
+//        var_dump($_FILES['fileToUpload']['name']);
+//        die();
+        if ($_FILES['fileToUpload']['name'] == '') {
+            $url = $author->getUrlImage();
+        } else {
+            $url = 'uploads/'.$_FILES['fileToUpload']['name'];
+        }
+
         try {
-            $sql = "UPDATE `authors` SET `first_name`=?,`last_name`=?,`email`=?,`birthdate`=? WHERE `id`=". $request['id'];
+            $sql = "UPDATE `authors` SET `first_name`=?,`last_name`=?,`email`=?,`birthdate`=?,`url_image`=? WHERE `id`=" . $request['id'];
             $stmt = $this->dbConnect->connect()->prepare($sql);
-            $stmt->bindParam(1,$request['first-name']);
-            $stmt->bindParam(2,$request['last-name']);
-            $stmt->bindParam(3,$request['email']);
-            $stmt->bindParam(4,$request['birthdate']);
+            $stmt->bindParam(1, $request['first-name']);
+            $stmt->bindParam(2, $request['last-name']);
+            $stmt->bindParam(3, $request['email']);
+            $stmt->bindParam(4, $request['birthdate']);
+            $stmt->bindParam(5, $url);
             $stmt->execute();
-        }catch (\PDOException $exception){
+        } catch (\PDOException $exception) {
             echo $exception->getMessage();
         }
     }
@@ -82,15 +97,20 @@ class AuthorModel //CRUD with Database
 
     public function convertToObject($data)
     {
-        $author =  new Author($data['first_name'],$data['last_name'],$data['email'],$data['birthdate']);
+        $author = new Author($data['first_name'], $data['last_name'], $data['email'], $data['birthdate']);
         $author->setId($data['id']);
+        if ($data['url_image'] == null) {
+            $author->setUrlImage('uploads/default/default-avatar.jpeg');
+        } else {
+            $author->setUrlImage($data['url_image']);
+        }
         return $author;
     }
 
     public function convertAllToObj($data)
     {
         $objs = [];
-        foreach ($data as $item){
+        foreach ($data as $item) {
             $objs[] = $this->convertToObject($item);
         }
         return $objs;

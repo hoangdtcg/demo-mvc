@@ -5,6 +5,7 @@
         <thead>
         <tr>
             <th scope="col">ID</th>
+            <th scope="col">Avatar</th>
             <th scope="col">First</th>
             <th scope="col">Last</th>
             <th scope="col">Email</th>
@@ -17,6 +18,7 @@
             foreach ($authors as $author) :?>
                 <tr>
                     <th scope="row"><?php echo $author->getId() ?></th>
+                    <td><img width="150px" src="<?php echo $author->getUrlImage() ?>" alt=""></td>
                     <td><?php echo $author->getFirstName() ?></td>
                     <td><?php echo $author->getLastName() ?></td>
                     <td><?php echo $author->getEmail() ?></td>
@@ -31,3 +33,4 @@
 </div>
 
 <?php include_once '../layouts/footer.php' ?>
+
